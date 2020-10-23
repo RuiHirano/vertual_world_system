@@ -222,7 +222,6 @@ func (rvo2 *RVO2) GetNextDestination(destination *util.Coord) *util.Coord {
 			for i, point := range route.NeighborPoints {
 				if(random < int(point.Popularity*10)) {
 					// 抽選対象決定
-					log.Printf("-----------------index: ", index, point.Id, point.Popularity)
 					index = i;
 					break;
 				  }

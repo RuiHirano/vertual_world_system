@@ -1,6 +1,7 @@
 package monitor
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -63,9 +64,18 @@ func (ps *Monitor)SendAgents(agents []*util.Agent) {
 		}
 		jsonAgents = append(jsonAgents, mm.GetJson())
 	}
+
+	// jsonRealAgents: そのままMarshalしたもの
+	jsonRealAgents, err := json.Marshal(agents)
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
 	mu.Lock()
 	if ioserv != nil{
 		ioserv.BroadcastToAll("agents", jsonAgents)
+		ioserv.BroadcastToAll("realAgents", jsonRealAgents)
 	}else{
 		log.Printf("ioserv is nil. can't send agents")
 	}
