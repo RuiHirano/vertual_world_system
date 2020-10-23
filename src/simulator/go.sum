@@ -1,3 +1,6 @@
+github.com/RuiHirano/rvo2-go v1.1.3 h1:unLiJRcEsZ+/P5IgGHkuRBMF5SeC3jkE+0FnI9yMacw=
+github.com/RuiHirano/rvo2-go/src/rvosimulator v0.0.0-20200707091306-e572a9b06cee h1:t5tugY+SoGXoc/mHJJt4c92qP/vqFwnxm5YGMUfFIQg=
+github.com/RuiHirano/rvo2-go/src/rvosimulator v0.0.0-20200707091306-e572a9b06cee/go.mod h1:Ay2zRkDoG1TkQE8XAGofle1BH7IewW3ggfdxIdjALoc=
 github.com/RuiHirano/vertual_world_system v0.0.0-20201022060441-b58896ded0a6 h1:iTh1ezk/LBfvkD+jcA3fIkdRxoHRfH3uo7BsCQ3wB0Y=
 github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

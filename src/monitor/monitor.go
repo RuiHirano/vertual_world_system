@@ -52,7 +52,7 @@ func (ps *Monitor)SendAgents(agents []*util.Agent) {
 	jsonAgents := make([]string, 0)
 	for _, agent := range agents {
 		id, _ := strconv.Atoi(agent.ID)
-		log.Printf("id: %v", agent)
+		//log.Printf("id: %v", agent)
 		mm := &MapMarker{
 			mtype: int32(0),
 			id:    int32(id),

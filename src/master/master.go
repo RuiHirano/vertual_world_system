@@ -25,18 +25,37 @@ func (mas *Master)Run(){
 	log.Printf("monitor runnning...")
 	monitor := mon.NewMonitor()
 	go monitor.Run()
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 1)
+
+	// Run Higashiyama Listener
+	log.Printf("higashiyama runnning...")
+	higashi := util.NewHigashiyama()
+	go higashi.RunListener()
+	time.Sleep(time.Second * 1)
 
 	// PeopleSimulator
 	ps := pep.NewPeopleSimulator(monitor)
-	ps.AddAgents(util.GetMockAgents(600))
+	ps.AddAgents(util.GetMockAgents(2000))
 
 	log.Printf("start simulation")
 	for{
-		time.Sleep(time.Second * 1)
+		t1 := time.Now()
+
 		ps.Run()
+
+		t2 := time.Now()
+		duration := t2.Sub(t1).Milliseconds()
+		interval := int64(1000) // 周期ms
+		if duration > interval {
+			log.Printf("time cycle delayed... Duration: %d", duration)
+		} else {
+			// 待機
+			log.Printf("cycle finished Duration: %d ms, Wait: %d ms", duration, interval-duration)
+			time.Sleep(time.Duration(interval-duration) * time.Millisecond)
+		}
+		
 		if mas.EndDate.Before(time.Now()){
-			log.Printf("finish cycle")
+			log.Printf("finish simulation...")
 			break
 		}
 	}
