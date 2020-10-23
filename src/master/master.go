@@ -35,13 +35,16 @@ func (mas *Master)Run(){
 
 	// PeopleSimulator
 	ps := pep.NewPeopleSimulator(monitor)
-	ps.AddAgents(util.GetMockAgents(2000))
+	ps.AddAgents(util.GetMockAgents(100))
+
+	// 時間によってエージェント数を増減させる
+	go ps.ChangeAgent(higashi.Config)
 
 	log.Printf("start simulation")
 	for{
 		t1 := time.Now()
 
-		ps.Run()
+		ps.Run(higashi.Routes)
 
 		t2 := time.Now()
 		duration := t2.Sub(t1).Milliseconds()

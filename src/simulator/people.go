@@ -5,6 +5,7 @@ import (
 
 	"math"
 	"math/rand"
+	"time"
 
 	rvo "github.com/RuiHirano/rvo2-go/src/rvosimulator"
 	mon "github.com/RuiHirano/vertual_world_system/src/monitor"
@@ -32,6 +33,14 @@ func (ps *PeopleSimulator)AddAgents(agents []*util.Agent) {
 	ps.Agents = append(ps.Agents, agents...)
 }
 
+// AddAgents : 
+func (ps *PeopleSimulator)DeleteRandomAgents(num int) {
+	log.Printf("delete agents")
+	index := rand.Intn(len(ps.Agents)-num)
+	agents := ps.Agents
+	ps.Agents = append(agents[:index],agents[index+num:]...) 
+}
+
 // SetAgents : 
 func (ps *PeopleSimulator)SetAgents(agents []*util.Agent) {
 	log.Printf("set agents")
@@ -39,23 +48,46 @@ func (ps *PeopleSimulator)SetAgents(agents []*util.Agent) {
 }
 
 // Run : 
-func (ps *PeopleSimulator)Run() {
+func (ps *PeopleSimulator)Run(routes []*util.RoutePoint) {
 	log.Printf("run")
 
 	// Higashiyama Route
-	higashi := util.NewHigashiyama()
-	// 時間によってエージェント数を増減させる
+	//higashi := util.NewHigashiyama()
+
 	// 時間によってRouteの人気度を増減させる
 	// サイネージによってPointの人気度を増減させる
 
 	// RVO2
-	rvo2 := NewRVO2(higashi.Routes)
+	rvo2 := NewRVO2(routes)
 	agents := rvo2.ForwardStep(ps.Agents)
 	ps.SetAgents(agents)
 	
 	// Send Monitor
 	ps.Monitor.SendAgents(ps.Agents)
 
+}
+
+// Run : 
+func (ps *PeopleSimulator)ChangeAgent(config *util.Config) {
+	log.Printf("change agent", config.IntervalTime)
+	t := time.NewTicker(time.Duration(config.IntervalTime) * time.Second) // 3秒おきに通知
+    for {
+        select {
+        case <-t.C:
+			// 3秒経過した。ここで何かを行う。
+			log.Printf("chage!")
+			isAdd := rand.Intn(2) != 0
+			agentsNum := 0
+			if isAdd && len(ps.Agents)+agentsNum < config.MaxPeople{
+				agents := util.GetMockAgents(agentsNum)
+				ps.AddAgents(agents)
+			}
+			if !isAdd && len(ps.Agents)-agentsNum > config.MinPeople{
+				ps.DeleteRandomAgents(agentsNum)
+			}
+        }
+    }
+    t.Stop() // タイマを止める。
 }
 
 type RVO2 struct {
@@ -110,6 +142,8 @@ func (rvo2 *RVO2) CalcNextAgents(agents []*util.Agent) []*util.Agent {
 		if distance < 10{
 			destination = rvo2.GetNextDestination(destination)
 		}
+
+		//log.Printf("-----------------popularity: ", rvo2.Routes[0].NeighborPoints[0].Id, rvo2.Routes[0].NeighborPoints[0].Popularity)
 
 		nextAgents = append(nextAgents, &util.Agent{
 			ID:    agent.ID,
@@ -172,7 +206,32 @@ func (rvo2 *RVO2) GetNextDestination(destination *util.Coord) *util.Coord {
 	newDestination := destination
 	for _, route := range rvo2.Routes {
 		if route.Point.Longitude == destination.Longitude && route.Point.Latitude == destination.Latitude {
+			
+
 			index := rand.Intn(len(route.NeighborPoints))
+
+			// Popularityによる重み付け選択
+			totalWeight := 0;
+			for _, point := range route.NeighborPoints {
+				totalWeight += int(point.Popularity*10);
+			}
+			if totalWeight == 0{ // どこにもいけない状態
+				break
+			}
+			random := rand.Intn(totalWeight)
+			for i, point := range route.NeighborPoints {
+				if(random < int(point.Popularity*10)) {
+					// 抽選対象決定
+					log.Printf("-----------------index: ", index, point.Id, point.Popularity)
+					index = i;
+					break;
+				  }
+				  
+				// 次の対象を調べる
+				random -= int(point.Popularity*10);
+			}
+
+			
 			nextRoute := route.NeighborPoints[index]
 			newDestination = nextRoute.Point
 			break
